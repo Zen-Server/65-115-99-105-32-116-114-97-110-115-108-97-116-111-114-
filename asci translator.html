@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Translate Terminal</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px #0f0;
+            text-align: center;
+            width: 500px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 10px;
+            resize: none;
+        }
+        input[type="number"] {
+            width: 60px;
+            background: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 5px;
+            margin: 10px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00cc00;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #111;
+            border-radius: 5px;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .error {
+            color: #f00;
+        }
+        .loading {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🕵️‍♂️ ASCII Translate Terminal 🕵️‍♂️</h2>
+        <textarea id="inputText" placeholder="Masukin pesan rahasia atau kode ASCII..."></textarea>
+        <div>
+            <label>Shift (buat cipher):</label>
+            <input type="number" id="shiftValue" value="0" min="-10" max="10">
+        </div>
+        <button onclick="toAscii()">Text to ASCII</button>
+        <button onclick="fromAscii()">ASCII to Text</button>
+        <button onclick="encryptAscii()">Encrypt ASCII</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        async function typeEffect(text, element, speed = 50) {
+            element.innerHTML = '<span class="loading">TRANSLATING...</span>';
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            element.innerHTML = '';
+            for (let i = 0; i < text.length; i++) {
+                element.innerHTML += text[i];
+                await new Promise(resolve => setTimeout(resolve, speed));
+            }
+        }
+
+        function toAscii() {
+            const input = document.getElementById('inputText').value;
+            const output = document.getElementById('output');
+            if (!input) {
+                typeEffect('😜 Error: Masukin pesan dulu, bro!', output);
+                return;
+            }
+            let ascii = '';
+            for (let i = 0; i < input.length; i++) {
+                ascii += input.charCodeAt(i) + ' ';
+            }
+            typeEffect(`Kode ASCII: ${ascii}\n🔥 Translate mode activated! 😎`, output);
+        }
+
+        function fromAscii() {
+            const input = document.getElementById('inputText').value.trim();
+            const output = document.getElementById('output');
+            if (!input) {
+                typeEffect('😜 Error: Masukin kode ASCII dulu, bro!', output);
+                return;
+            }
+            try {
+                const asciiArray = input.split(' ').map(Number);
+                let text = '';
+                for (let code of asciiArray) {
+                    if (code >= 32 && code <= 126) {
+                        text += String.fromCharCode(code);
+                    } else {
+                        typeEffect('🤔 Error: Kode ASCII nggak valid, bro!', output);
+                        return;
+                    }
+                }
+                typeEffect(`Pesan rahasia: ${text}\n🕵️‍♂️ Decoded like a pro! 😏`, output);
+            } catch {
+                typeEffect('😅 Error: Format ASCII salah, bro!', output);
+            }
+        }
+
+        function encryptAscii() {
+            const input = document.getElementById('inputText').value;
+            const shift = parseInt(document.getElementById('shiftValue').value);
+            const output = document.getElementById('output');
+            if (!input) {
+                typeEffect('😜 Error: Masukin pesan dulu, bro!', output);
+                return;
+            }
+            let ascii = '';
+            for (let i = 0; i < input.length; i++) {
+                let code = input.charCodeAt(i) + shift;
+                if (code > 126) code = 32 + (code - 126) % (126 - 32);
+                if (code < 32) code = 126 - (32 - code) % (126 - 32);
+                ascii += code + ' ';
+            }
+            typeEffect(`Encrypted ASCII: ${ascii}\n🕵️‍♂️ Cipher mode on! 😎`, output);
+        }
+    </script>
+</body>
+</html>
